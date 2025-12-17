@@ -1,61 +1,167 @@
-# Lab11Web: Praktikum 11 PHP OOP Lanjutan
+# Praktikum 12 – Autentikasi dan Session (PHP OOP)
 
-Nama: Manuel Johansen Dolok Saribu
+## Identitas
+- **Mata Kuliah**: Pemrograman Web  
+- **Praktikum**: 12  
+- **Topik**: Autentikasi dan Session  
+- **Bahasa**: PHP (OOP)  
+- **Database**: MySQL  
 
-NIM: 312410493
+---
 
-Kelas: Ti.24.a5
+## Tujuan Praktikum
+1. Memahami konsep autentikasi (login dan logout).
+2. Memahami penggunaan session pada PHP.
+3. Mengimplementasikan sistem login sederhana.
+4. Melindungi halaman tertentu menggunakan session.
+5. Menambahkan fitur profil pengguna.
 
-## 📂 Struktur Folder
-Struktur direktori proyek ini disusun menggunakan pola MVC (Model-View-Controller) sederhana:
+---
 
+## Struktur Folder
 ```
 lab11_php_oop/
-├── .htaccess            # Konfigurasi URL Rewrite (Apache)
-├── config.php           # Konfigurasi koneksi database
-├── index.php            # Gerbang utama (Front Controller) & Routing
-├── class/               # Library / Helper Classes
-│   ├── Database.php     # Wrapper untuk koneksi & query MySQLi
-│   └── Form.php         # Generator elemen Form otomatis
-├── module/              # Modul-modul fitur website
-│   ├── home/            # Modul default
-│   └── artikel/         # Modul CRUD Artikel
-│       ├── index.php    # Menampilkan data
-│       ├── tambah.php   # Form tambah data
-│       └── ubah.php     # Form ubah data
-└── template/            # Template Layout (View)
-    ├── header.php
-    ├── footer.php
-    └── sidebar.php
+│
+├── class/
+│   ├── Database.php
+│   └── Form.php
+│
+├── module/
+│   ├── home/
+│   │   └── index.php
+│   ├── user/
+│   │   ├── login.php
+│   │   ├── logout.php
+│   │   └── profile.php
+│   └── artikel/
+│       ├── index.php
+│       ├── tambah.php
+│       ├── ubah.php
+│       └── hapus.php
+│
+├── template/
+│   ├── header.php
+│   └── footer.php
+│
+├── config.php
+├── index.php
+└── README.md
 ```
 
-Langkah-Langkah Praktikum
+---
 
-1. Persiapan Database & Konfigurasi
+## Persiapan Database
 
-Membuat database dan menyesuaikan konfigurasi pada file config.php.
-- Database: latihan_oop
-- Tabel: artikel (id, judul, isi, tanggal)
+### Tabel Users
+```sql
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    nama VARCHAR(100)
+);
+```
 
-2. Pembuatan Library (Class)
+### Insert User Admin
+```sql
+INSERT INTO users (username, password, nama)
+VALUES (
+  'admin',
+  '$2y$10$XXXXXXXXXXXXXXXXXXXXXXXX',
+  'Administrator'
+);
+```
+Password disimpan dalam bentuk hash menggunakan fungsi `password_hash()`.
 
-Memisahkan logika program ke dalam folder class/.
-- Database.php: Menangani koneksi ke database, insert, update, delete, dan select data.
-- Form.php: Membuat elemen form HTML (input text, radio, checkbox, submit) secara dinamis menggunakan konsep OOP.
+---
 
-3. Implementasi Routing (URL Rewrite)
+## Routing dan Session
+Aplikasi menggunakan file `index.php` sebagai **Front Controller**.  
+Session diaktifkan menggunakan `session_start()` dan digunakan untuk:
+- Menyimpan status login
+- Menyimpan data user yang sedang login
+- Melindungi halaman admin dari akses user yang belum login
 
-Routing berfungsi untuk mempercantik URL dan mengarahkan request ke modul yang tepat.
-- File .htaccess: Mengubah URL dari index.php?mod=artikel&page=tambah menjadi /artikel/tambah.
-- File index.php: Menerima request URL, memecahnya menjadi segmen (Module & Action), dan memanggil file yang sesuai dari folder module/.
+---
 
-4. Layouting (Template)
+## Modul Login dan Logout
+- **Login** dilakukan dengan mencocokkan password menggunakan `password_verify()`
+- Jika login berhasil, session akan dibuat
+- **Logout** menghapus session menggunakan `session_destroy()`
 
-Memisahkan bagian tampilan yang statis (Header, Footer, Sidebar) agar tidak perlu ditulis ulang di setiap halaman.
+---
 
-5. Implementasi Modul Artikel (CRUD)
-   
-Membuat fitur CRUD (Create, Read, Update, Delete) sederhana.
-- Read: Menampilkan daftar artikel dalam tabel.
-- Create: Form tambah data menggunakan class Form.
-- Update: Form edit data yang mengambil data lama dari database.
+## Navigasi Dinamis
+Menu navigasi berubah sesuai status login:
+- Belum login → Home, Login
+- Sudah login → Home, Artikel, Profil, Logout
+
+---
+
+## Modul Artikel (CRUD)
+Setelah login, user dapat mengelola data artikel:
+- Melihat daftar artikel
+- Menambah artikel
+- Mengubah artikel
+- Menghapus artikel
+
+Semua halaman artikel hanya bisa diakses jika user sudah login.
+
+---
+
+## Fitur Profil Pengguna
+
+Pada praktikum ini ditambahkan fitur **Profil Pengguna** yang berada pada file `module/user/profile.php`.
+
+### Fungsi Halaman Profil
+1. Menampilkan data user yang sedang login:
+   - Nama
+   - Username
+2. Menyediakan form untuk mengubah password.
+
+### Perubahan Password
+Password baru yang dimasukkan user akan:
+- Dienkripsi menggunakan `password_hash()`
+- Disimpan kembali ke database dalam bentuk hash
+
+Dengan cara ini, password tidak pernah disimpan dalam bentuk teks biasa sehingga lebih aman.
+
+### Keamanan
+- Halaman profil diproteksi dengan session
+- User yang belum login akan diarahkan ke halaman login
+- Password disimpan dalam bentuk terenkripsi
+
+---
+
+## Cara Menjalankan Aplikasi
+1. Jalankan Apache dan MySQL
+2. Simpan folder project di `htdocs/lab11_php_oop`
+3. Buka browser dan akses:
+```
+http://localhost/lab11_php_oop
+```
+4. Login menggunakan:
+```
+Username: admin
+Password: admin123
+```
+
+---
+
+## Hasil Pengujian
+- Login berhasil
+- Session aktif
+- Navigasi berubah sesuai status login
+- CRUD artikel berjalan dengan baik
+- Fitur profil dapat menampilkan data user dan mengubah password
+- Logout berhasil menghapus session
+
+---
+
+## Kesimpulan
+Praktikum 12 berhasil mengimplementasikan sistem autentikasi dan session menggunakan PHP berbasis OOP. Sistem mampu membatasi akses halaman admin, mengelola data artikel, serta menyediakan fitur profil untuk mengubah password dengan aman.
+
+---
+
+## Screenshot
+Screenshot pelaksanaan praktikum disertakan pada laporan sesuai instruksi.
