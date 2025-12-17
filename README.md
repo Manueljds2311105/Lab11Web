@@ -35,17 +35,15 @@ lab11_php_oop/
 │   │   └── profile.php
 │   └── artikel/
 │       ├── index.php
-│       ├── tambah.php
-│       ├── ubah.php
-│       └── hapus.php
+│       ├── tambah.php 
+│       └── ubah.php
 │
 ├── template/
 │   ├── header.php
 │   └── footer.php
 │
 ├── config.php
-├── index.php
-└── README.md
+└── index.php
 ```
 
 ---
@@ -162,6 +160,3 @@ Password: admin123
 Praktikum 12 berhasil mengimplementasikan sistem autentikasi dan session menggunakan PHP berbasis OOP. Sistem mampu membatasi akses halaman admin, mengelola data artikel, serta menyediakan fitur profil untuk mengubah password dengan aman.
 
 ---
-
-## Screenshot
-Screenshot pelaksanaan praktikum disertakan pada laporan sesuai instruksi.
